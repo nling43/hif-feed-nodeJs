@@ -2,8 +2,9 @@ const express = require("express");
 const cheerio = require("cheerio");
 const axios = require("axios");
 const moment = require("moment");
+const { json } = require("express");
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3001;
 
 async function fs() {
 	const url = "https://fotbollskane.se/tag/helsingborgs-if/";
@@ -98,13 +99,12 @@ async function fk() {
 
 	return news.slice(0, news.length - 1);
 }
-app.route("/").get(async (req, res) => {
+app.get("/", async (req, res) => {
 	const fsArray = await fs();
 	const hdArray = await hd();
 	const fdArray = await fd();
 	const fkArray = await fk();
 
-	console.log(fkArray);
 	// get date for forbollskåne
 	for (let index = 0; index < fsArray.length; index = index + 2) {
 		const promise = await axios.get(fsArray[index].url);
@@ -128,7 +128,7 @@ app.route("/").get(async (req, res) => {
 		if (result !== 0) return result;
 		return b.date.getDate() - a.date.getDate();
 	});
-	res.send(news.splice(0, 10));
+	res.type("json").send(news.splice(0, 10));
 });
 
 app.listen(PORT, () => console.log("Running @ " + PORT));
