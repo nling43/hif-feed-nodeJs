@@ -3,7 +3,7 @@ const cheerio = require("cheerio");
 const axios = require("axios");
 const moment = require("moment");
 const app = express();
-const PORT = 443;
+const PORT = 3000;
 
 async function fs() {
 	const url = "https://fotbollskane.se/tag/helsingborgs-if/";
