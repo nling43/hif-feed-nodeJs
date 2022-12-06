@@ -98,7 +98,7 @@ async function fk() {
 
 	return news.slice(0, news.length - 1);
 }
-app.get("/news", async (req, res) => {
+app.route("/").get(async (req, res) => {
 	const fsArray = await fs();
 	const hdArray = await hd();
 	const fdArray = await fd();
