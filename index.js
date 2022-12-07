@@ -135,7 +135,7 @@ app.get("/news", async (req, res) => {
 		if (result !== 0) return result;
 		return b.date.getDate() - a.date.getDate();
 	});
-	res.type("json").send(news.splice(0, 10));
+	res.send(JSON.stringify(news));
 });
 
 app.listen(PORT, () => console.log("Running @ " + PORT));
