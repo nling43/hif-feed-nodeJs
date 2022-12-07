@@ -6,7 +6,7 @@ const moment = require("moment");
 const app = express();
 app.use(express.json());
 app.use(require("body-parser").json());
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 async function fs() {
 	const url = "https://fotbollskane.se/tag/helsingborgs-if/";
@@ -103,7 +103,7 @@ async function fk() {
 }
 
 app.get("/", (req, res) => {
-	res.send("heej");
+	res.json("heej");
 });
 
 app.get("/news", async (req, res) => {
@@ -135,7 +135,7 @@ app.get("/news", async (req, res) => {
 		if (result !== 0) return result;
 		return b.date.getDate() - a.date.getDate();
 	});
-	res.send(news[0].title);
+	res.json(news.splice(0, 10));
 });
 
 app.listen(PORT, () => console.log("Running @ " + PORT));
