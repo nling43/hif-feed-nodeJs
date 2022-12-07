@@ -17,13 +17,13 @@ async function fs() {
 		const news = [];
 		$("article.tag-helsingborgs-if").each(function () {
 			const h1Tag = $(this).find("h1.entry-title");
-			const url = $(h1Tag).find("a").attr("href");
 			news.push({
 				title: $(h1Tag).find("a").text().trim(),
-				url: url,
+				url: $(h1Tag).find("a").attr("href"),
 				img: $(this).find("img.wp-post-image").attr("src"),
 				txt: $(this).find("p").text().trim(),
 				src: "Fotbollskåne",
+				date: new Date($(this).find("span.post-date").find("a").text().trim()),
 			});
 		});
 		return news;
@@ -121,11 +121,7 @@ async function fk() {
 	}
 }
 
-app.get("/", (req, res) => {
-	res.json("heej");
-});
-
-app.get("/news", async (req, res) => {
+app.get("/", async (req, res) => {
 	try {
 		const fsArray = await fs();
 		const hdArray = await hd();
@@ -133,18 +129,6 @@ app.get("/news", async (req, res) => {
 		const fkArray = await fk();
 
 		// get date for forbollskåne
-		for (let index = 0; index < fsArray.length; index = index + 2) {
-			const promise = await axios.get(fsArray[index].url);
-			const promiseData = promise.data;
-			const $ = cheerio.load(promiseData);
-			fsArray[index].date = new Date(
-				$("span.post-date").first().find("time").text()
-			);
-		}
-
-		for (let index = 1; index < fsArray.length; index = index + 2) {
-			fsArray[index].date = fsArray[index - 1].date;
-		}
 
 		// combine and sort on date
 		const news = fsArray.concat(hdArray, fdArray, fkArray);
@@ -158,6 +142,7 @@ app.get("/news", async (req, res) => {
 		res.json(news.splice(0, 10));
 	} catch (error) {
 		console.log("error @ news endpoint", error);
+		res.send(error);
 	}
 });
 
