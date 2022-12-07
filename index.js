@@ -86,9 +86,10 @@ async function fk() {
 		.each(function () {
 			let date = moment();
 			const date2 = $(this).find("div.news-list__item-date").text().trim();
-			if (date2.at(1) === "d") date = date.subtract(date2.at(0), "days");
-			else if (date2.at(1) == "v") date = date.subtract(date2.at(0), "weeks");
-			else date.subtract(date2.at(0), "hours");
+			if (date2.charAt(1) === "d") date = date.subtract(date2.at(0), "days");
+			else if (date2.charAt(1) == "v")
+				date = date.subtract(date2.at(0), "weeks");
+			else date.subtract(date2.charAt(0), "hours");
 			news.push({
 				title: $(this).find("span.news-list__item-text-headline").text(),
 				url: "https://www.fotbollskanalen.se" + $(this).find("a").attr("href"),
