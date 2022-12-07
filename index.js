@@ -121,7 +121,7 @@ async function fk() {
 	}
 }
 
-app.get("/", async (req, res) => {
+app.get("/news", async (req, res) => {
 	try {
 		const fsArray = await fs();
 		const hdArray = await hd();
