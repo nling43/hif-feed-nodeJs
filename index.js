@@ -101,7 +101,12 @@ async function fk() {
 
 	return news.slice(0, news.length - 1);
 }
-app.get("/", async (req, res) => {
+
+app.get("/", (req, res) => {
+	res.send("heej");
+});
+
+app.get("/news", async (req, res) => {
 	const fsArray = await fs();
 	const hdArray = await hd();
 	const fdArray = await fd();
