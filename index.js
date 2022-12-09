@@ -120,6 +120,9 @@ async function fk() {
 		console.log("Fk error", e);
 	}
 }
+app.get("/", async (req, res) => {
+	res.send("ok");
+});
 
 app.get("/news", async (req, res) => {
 	try {
@@ -139,7 +142,7 @@ app.get("/news", async (req, res) => {
 			if (result !== 0) return result;
 			return b.date.getDate() - a.date.getDate();
 		});
-		res.json(news.splice(0, 10));
+		res.json(news.splice(0, 20));
 	} catch (error) {
 		console.log("error @ news endpoint", error);
 		res.send(error);
