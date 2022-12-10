@@ -17,15 +17,19 @@ async function fs() {
 		const news = [];
 		$("article.tag-helsingborgs-if").each(function () {
 			const h1Tag = $(this).find("h1.entry-title");
+			const date = new Date(
+				$(this).find("span.post-date").find("a").text().trim().replace(",", "")
+			);
 			news.push({
 				title: $(h1Tag).find("a").text().trim(),
 				url: $(h1Tag).find("a").attr("href"),
 				img: $(this).find("img.wp-post-image").attr("src"),
 				txt: $(this).find("p").text().trim(),
 				src: "Fotbollskåne",
-				date: new Date($(this).find("span.post-date").find("a").text().trim()),
+				date: moment(date).format("yyyy/MM/D"),
 			});
 		});
+
 		return news;
 	} catch (e) {
 		console.log("fs error", e);
@@ -46,9 +50,10 @@ async function hd() {
 				img: $(this).find("img.teaser__img").attr("data-src").trim(),
 				txt: $(this).find("div.teaser__standfirst").text().trim(),
 				src: "Helsingborgs Dagblad",
-				date: new Date(url.slice(1, 11)),
+				date: moment(url.slice(1, 11)).format("yyyy/MM/D"),
 			});
 		});
+
 		return news;
 	} catch (e) {
 		console.log("hd error", e);
@@ -77,47 +82,38 @@ async function fd() {
 					.text()
 					.trim(this.startIndex),
 				src: "Fotbolldirekt",
-				date: new Date(url.slice(25, 35)),
+				date: moment(new Date(url.slice(25, 35))).format("yyyy/MM/D"),
 			});
 		});
+
 		return news;
 	} catch (e) {
 		console.log("fd error", e);
 	}
 }
 
-async function fk() {
-	const url =
-		"https://www.fotbollskanalen.se/allsvenskan/helsingborgs-if/?tab=nyheter";
+async function hif() {
+	const url = "https://www.hif.se/nyheter/";
 	try {
 		const promise = await axios(url);
 		const promiseData = promise.data;
 		const $ = cheerio.load(promiseData);
 		const news = [];
-		$("ul.news-list")
-			.find("li")
-			.each(function () {
-				let date = moment();
-				const date2 = $(this).find("div.news-list__item-date").text().trim();
-				if (date2.charAt(1) === "d")
-					date = date.subtract(date2.charAt(0), "days");
-				else if (date2.charAt(1) == "v")
-					date = date.subtract(date2.charAt(0), "weeks");
-				else date.subtract(date2.charAt(0), "hours");
-				news.push({
-					title: $(this).find("span.news-list__item-text-headline").text(),
-					url:
-						"https://www.fotbollskanalen.se" + $(this).find("a").attr("href"),
-					img: $(this).find("img").attr("data-original"),
-					txt: $(this).find("span.news-list__item-text-headline").text(),
-					src: "Fotbollskanalen",
-					date: new Date(date),
-				});
+		$("article.blog-entry").each(function () {
+			news.push({
+				title: $(this).find("h2.blog-entry-title").find("a").text(),
+				url: $(this).find("h2.blog-entry-title").find("a").attr("href"),
+				img: $(this).find("img.blog-entry-media-img").attr("src"),
+				txt: $(this).find("div.blog-entry-excerpt").find("p").text(),
+				src: "HIF",
+				date: moment($(this).find("time.updated").attr("datetime")).format(
+					"yyyy/MM/D"
+				),
 			});
-
-		return news.slice(0, news.length - 1);
+		});
+		return news;
 	} catch (e) {
-		console.log("Fk error", e);
+		console.log("HIF.se error", e);
 	}
 }
 app.get("/", async (req, res) => {
@@ -129,18 +125,21 @@ app.get("/news", async (req, res) => {
 		const fsArray = await fs();
 		const hdArray = await hd();
 		const fdArray = await fd();
-		const fkArray = await fk();
+		const hifArray = await hif();
 
 		// get date for forbollskåne
 
 		// combine and sort on date
-		const news = fsArray.concat(hdArray, fdArray, fkArray);
+		const news = fsArray.concat(hdArray, fdArray, hifArray);
 		news.sort(function (a, b) {
-			let result = b.date.getFullYear() - a.date.getFullYear();
+			const aDate = a.date.split("/");
+			const bDate = b.date.split("/");
+
+			let result = bDate[0] - aDate[0];
 			if (result !== 0) return result;
-			result = b.date.getMonth() - a.date.getMonth();
+			result = bDate[1] - aDate[1];
 			if (result !== 0) return result;
-			return b.date.getDate() - a.date.getDate();
+			return bDate[2] - aDate[2];
 		});
 		res.json(news.splice(0, 20));
 	} catch (error) {
