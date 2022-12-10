@@ -100,11 +100,16 @@ async function hif() {
 		const $ = cheerio.load(promiseData);
 		const news = [];
 		$("article.blog-entry").each(function () {
+			const txt = $(this)
+				.find("div.blog-entry-excerpt")
+				.find("p")
+				.text()
+				.split(".");
 			news.push({
 				title: $(this).find("h2.blog-entry-title").find("a").text(),
 				url: $(this).find("h2.blog-entry-title").find("a").attr("href"),
 				img: $(this).find("img.blog-entry-media-img").attr("src"),
-				txt: $(this).find("div.blog-entry-excerpt").find("p").text(),
+				txt: txt[0],
 				src: "HIF",
 				date: moment($(this).find("time.updated").attr("datetime")).format(
 					"yyyy/MM/D"
