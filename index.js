@@ -47,7 +47,7 @@ async function hd() {
 			news.push({
 				title: $(this).find("span.prose-title").text().trim(),
 				url: "https://www.hd.se" + url,
-				img: $(this).find("img.teaser__img").attr("data-src").trim(),
+				img: $(this).find("img.teaser__img").attr("data-src"),
 				txt: $(this).find("div.teaser__standfirst").text().trim(),
 				src: "Helsingborgs Dagblad",
 				date: moment(url.slice(1, 11)).format("yyyy/MM/D"),
@@ -57,38 +57,6 @@ async function hd() {
 		return news;
 	} catch (e) {
 		console.log("hd error", e);
-	}
-}
-
-async function fd() {
-	const url = "https://fotbolldirekt.se/lag/helsingborgs-if/26";
-	try {
-		const promise = await axios(url);
-		const promiseData = promise.data;
-		const $ = cheerio.load(promiseData);
-		const news = [];
-		$("div.c-vertical-article").each(function () {
-			const url = $(this).find("a.c-vertical-article__title").attr("href");
-			const img = $(this).find("a.c-vertical-article__image").attr("style");
-			news.push({
-				title: $(this)
-					.find("a.c-vertical-article__title")
-					.text()
-					.trim(this.startIndex),
-				url: url,
-				img: img.slice(23, img.length - 3),
-				txt: $(this)
-					.find("a.c-vertical-article__excerpt")
-					.text()
-					.trim(this.startIndex),
-				src: "Fotbolldirekt",
-				date: moment(new Date(url.slice(25, 35))).format("yyyy/MM/D"),
-			});
-		});
-
-		return news;
-	} catch (e) {
-		console.log("fd error", e);
 	}
 }
 
@@ -129,13 +97,12 @@ app.get("/news", async (req, res) => {
 	try {
 		const fsArray = await fs();
 		const hdArray = await hd();
-		const fdArray = await fd();
 		const hifArray = await hif();
 
 		// get date for forbollskåne
 
 		// combine and sort on date
-		const news = fsArray.concat(hdArray, fdArray, hifArray);
+		const news = fsArray.concat(hdArray, hifArray);
 		news.sort(function (a, b) {
 			const aDate = a.date.split("/");
 			const bDate = b.date.split("/");
